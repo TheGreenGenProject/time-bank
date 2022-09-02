@@ -16,3 +16,8 @@ case class Transaction(
   receiver: AccountId,
   amount: HourPayment,
   comment: Option[String])
+
+case class ReservationId(id: UUID)
+case class Reservation(
+  id: ReservationId,
+  transactionId: TransactionId)

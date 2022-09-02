@@ -15,7 +15,9 @@ trait UserService[M[_]] {
 
   def admins(page: Page): M[List[Admin]]
 
-  def createUser(timeBankId: TimeBankId, name: String, description: Option[String]): M[Either[String, ValidationMethod]]
+  def createUser(timeBankId: TimeBankId,
+                 name: String,
+                 description: Option[String]): M[Either[String, ValidationMethod]]
 
   def enable(admin: Admin, userId: UserId, reason: String): M[Unit]
 

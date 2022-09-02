@@ -3,7 +3,11 @@ package org.timebank.service.timebank
 import org.timebank.core.{Admin, TimeBank, TimeBankId, UTCTimestamp, UUID}
 
 case class LinkRequestId(id: UUID)
-case class TimeBankLinkRequest(id: LinkRequestId, admin: Admin, requester: TimeBankId, requested: TimeBankId, timestamp: UTCTimestamp)
+case class TimeBankLinkRequest(id: LinkRequestId,
+                               admin: Admin,
+                               requester: TimeBankId,
+                               requested: TimeBankId,
+                               timestamp: UTCTimestamp)
 
 trait TimeBankService[M[_]] {
 
@@ -17,9 +21,11 @@ trait TimeBankService[M[_]] {
 
   def areLinked(id1: TimeBankId, id2: TimeBankId): M[Boolean]
 
-  // Linking 2 time banks to allow transactions between users from these time banks
+  // Linking 2 time-banks to allow transactions between users from these time banks
 
-  def requestLink(admin: Admin, requester: TimeBankId, requested: TimeBankId): M[Unit]
+  def requestLink(admin: Admin,
+                  requester: TimeBankId,
+                  requested: TimeBankId): M[Unit]
 
   def acceptLinkRequest(admin: Admin, id: LinkRequestId): M[Unit]
 

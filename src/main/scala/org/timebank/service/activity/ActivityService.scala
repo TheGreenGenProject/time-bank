@@ -11,11 +11,18 @@ trait ActivityService[M[_]] {
 
   def isOwner(userId: UserId, activityId: ActivityId): M[Boolean]
 
-  def declare(userId: UserId, description: String, timeSlot: TimeSlot, hashtags: List[Hashtag]): M[ActivityId]
+  def newActivity(userId: UserId,
+                  description: String,
+                  timeSlot: TimeSlot,
+                  hashtags: List[Hashtag]): M[ActivityId]
 
-  def declareInterest(userId: UserId, hashtags: List[Hashtag]): M[Unit]
+  def declareInterest(userId: UserId,
+                      hashtags: List[Hashtag]): M[Unit]
 
-  def update(activityId: ActivityId, description: String, timeSlot: TimeSlot, hashtags: List[Hashtag]): M[ActivityId]
+  def update(activityId: ActivityId,
+             description: String,
+             timeSlot: TimeSlot,
+             hashtags: List[Hashtag]): M[ActivityId]
 
   def enable(userId: UserId, id: ActivityId): M[Unit]
 

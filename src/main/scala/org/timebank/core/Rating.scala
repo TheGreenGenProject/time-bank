@@ -17,4 +17,12 @@ object Rating {
     case 4 => FourStar
     case 5 => FiveStar
   }
+
+  def toInt(rating: Rating): Int = rating match {
+    case OneStar   => 1
+    case TwoStar   => 2
+    case ThreeStar => 3
+    case FourStar  => 4
+    case FiveStar  => 5
+  }
 }
