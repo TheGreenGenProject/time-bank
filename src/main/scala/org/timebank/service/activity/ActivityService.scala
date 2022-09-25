@@ -1,7 +1,10 @@
 package org.timebank.service.activity
 
-import org.timebank.core.{Activity, ActivityId, Hashtag, Page, TimeSlot, UserId}
+import org.timebank.core.{Activity, ActivityId, Page, TimeSlot, UserId}
 
+
+case class Owner(userId: UserId)
+case class Requester(userId: UserId)
 
 trait ActivityService[M[_]] {
 
@@ -11,21 +14,18 @@ trait ActivityService[M[_]] {
 
   def isOwner(userId: UserId, activityId: ActivityId): M[Boolean]
 
-  def newActivity(userId: UserId,
+  def newActivity(userId: Owner,
                   description: String,
-                  timeSlot: TimeSlot,
-                  hashtags: List[Hashtag]): M[ActivityId]
-
-  def declareInterest(userId: UserId,
-                      hashtags: List[Hashtag]): M[Unit]
+                  timeSlots: List[TimeSlot]): M[ActivityId]
 
   def update(activityId: ActivityId,
              description: String,
-             timeSlot: TimeSlot,
-             hashtags: List[Hashtag]): M[ActivityId]
+             timeSlots: List[TimeSlot]): M[Unit]
 
-  def enable(userId: UserId, id: ActivityId): M[Unit]
+  def enable(userId: Owner, id: ActivityId): M[Unit]
 
-  def disable(userId: UserId, id: ActivityId): M[Unit]
+  def disable(userId: Owner, id: ActivityId): M[Unit]
+
+  def checkActivity(id: ActivityId): M[Unit]
 
 }

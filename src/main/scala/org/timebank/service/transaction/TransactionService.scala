@@ -4,25 +4,28 @@ import org.timebank.core._
 import scala.concurrent.duration.Duration
 
 
+case class Payer(accountId: AccountId)
+case class Receiver(accountId: AccountId)
+
 trait TransactionService[M[_]] {
 
   def byId(transactionId: TransactionId): M[Option[Transaction]]
 
-  def account(user: UserId): M[Option[AccountId]]
+  def account(user: UserId): M[Option[Account]]
 
   def balance(userId: UserId): M[Option[HourPayment]]
 
   def balance(account: AccountId): M[Option[HourPayment]]
 
   // Performs a transaction between 2 accounts
-  def transact(payer: AccountId,
-               receiver: AccountId,
+  def transact(payer: Payer,
+               receiver: Receiver,
                amount: HourPayment): M[TransactionId]
 
   // Reserve a transaction - this can be cancelled or transferred
   // Amount is taken out of the payer - but not released to the payee until validation
-  def reserve(payer: AccountId,
-              receiver: AccountId,
+  def reserve(payer: Payer,
+              receiver: Receiver,
               amount: HourPayment): M[ReservationId]
 
   def release(reservationId: ReservationId): M[Unit]

@@ -1,24 +1,27 @@
 package org.timebank.service.search
 
 import org.timebank.core.Location.PostCode
-import org.timebank.core.{Activity, Hashtag, Page, TimeSlot}
+import org.timebank.core.{Activity, ActivityId, Hashtag, Page, TimeSlot}
 
 
 trait SearchService[M[_]] {
 
-  def search(hashtag: List[Hashtag],
+  def index(activityId: ActivityId,
+            hashtags: Set[Hashtag])
+
+  def search(hashtags: Set[Hashtag],
              page: Page): M[List[Activity]]
 
-  def search(hashtag: List[Hashtag],
+  def search(hashtags: List[Hashtag],
              timeSlot: List[TimeSlot],
              page: Page): M[List[Activity]]
 
-  def searchByPostCodes(hashtag: List[Hashtag],
+  def searchByPostCodes(hashtags: List[Hashtag],
                         timeSlot: List[TimeSlot],
                         postCodes: List[PostCode],
                         page: Page): M[List[Activity]]
 
-  def searchOnline(hashtag: List[Hashtag],
+  def searchOnline(hashtags: List[Hashtag],
                    timeSlot: List[TimeSlot],
                    page: Page): M[List[Activity]]
 

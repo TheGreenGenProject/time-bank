@@ -9,9 +9,13 @@ trait UserService[M[_]] {
 
   def isEnabled(userId: UserId): M[Boolean]
 
+  def checkUser(userId: UserId): M[Unit]
+
   def users(page: Page): M[List[UserId]]
 
   def isAdmin(userId: UserId): M[Boolean]
+
+  def checkAdmin(admin: Admin): M[Boolean]
 
   def admins(page: Page): M[List[Admin]]
 
@@ -19,8 +23,12 @@ trait UserService[M[_]] {
                  name: String,
                  description: Option[String]): M[Either[String, ValidationMethod]]
 
-  def enable(admin: Admin, userId: UserId, reason: String): M[Unit]
+  def enable(admin: Admin,
+             userId: UserId,
+             reason: String): M[Unit]
 
-  def disable(admin: Admin, userId: UserId, reason: String): M[Unit]
+  def disable(admin: Admin,
+              userId: UserId,
+              reason: String): M[Unit]
 
 }

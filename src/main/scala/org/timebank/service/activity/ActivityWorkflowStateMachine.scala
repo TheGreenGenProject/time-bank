@@ -34,8 +34,8 @@ final case class Cancelled(
 final case class ActivityValidation(
   requestId: ActivityRequestId,
   timestamp: UTCTimestamp,
-  requester: Option[UserId],
-  organizer: Option[UserId]) extends FinalState {
+  requester: Option[Requester],
+  organizer: Option[Owner]) extends ActivityWorkflowState {
   def isValidated = requester.nonEmpty && organizer.nonEmpty
 }
 final case class Done(
@@ -50,22 +50,20 @@ final case class WorkflowError(
 sealed trait ActivityWorkflowAction {
   def requestId: ActivityRequestId
   def timestamp: UTCTimestamp
-  def user: UserId
 }
 final case class Request(request: ActivityRequest) extends ActivityWorkflowAction {
   def requestId = request.id
   def timestamp = request.timestamp
-  def user = request.requester
 }
 final case class Accept(
   requestId: ActivityRequestId,
   timestamp: UTCTimestamp,
-  user: UserId,
+  user: Owner,
   timeSlot: TimeSlot) extends ActivityWorkflowAction
 final case class Reject(
   requestId: ActivityRequestId,
   timestamp: UTCTimestamp,
-  user: UserId,
+  user: Owner,
   reason: Option[String]) extends ActivityWorkflowAction
 final case class Cancel(
   requestId: ActivityRequestId,
@@ -75,15 +73,15 @@ final case class Cancel(
 final case class ActivityReady(
   requestId: ActivityRequestId,
   timestamp: UTCTimestamp,
-  user: UserId) extends ActivityWorkflowAction
+  user: Owner) extends ActivityWorkflowAction
 final case class RequesterValidate(
   requestId: ActivityRequestId,
   timestamp: UTCTimestamp,
-  user: UserId) extends ActivityWorkflowAction
+  user: Requester) extends ActivityWorkflowAction
 final case class OrganizerValidate(
   requestId: ActivityRequestId,
   timestamp: UTCTimestamp,
-  user: UserId) extends ActivityWorkflowAction
+  user: Owner) extends ActivityWorkflowAction
 
 
 
@@ -92,35 +90,37 @@ object ActivityWorkflowStateMachine {
   // State transition implementation
   def handle(clock: Clock)
             (state: ActivityWorkflowState)
-            (action: ActivityWorkflowAction): ActivityWorkflowState = (state, action) match {
+            (action: ActivityWorkflowAction): ActivityWorkflowState = (state ---> action) match {
     // Cannot move state-machine from a final state
-    case (event: FinalState) ----> _ => event
+    case (event: FinalState) ---> _ => event
     // Workflow logic
-    case (_: Init) ----> (req: Request) =>
+    case (_: Init) ---> (req: Request) =>
       Requested(req.request)
-    case (r: Requested) ----> (cancel: Cancel) =>
+    case (r: Requested) ---> (cancel: Cancel) =>
       Cancelled(r.requestId, clock.now(), byUser = Some(cancel.user), reason = cancel.reason)
-    case (r: Requested) ----> (reject: Reject) =>
+    case (r: Requested) ---> (reject: Reject) =>
       Rejected(r.requestId, clock.now(), reason = reject.reason)
-    case (r: Requested) ----> (accept: Accept) =>
+    case (r: Requested) ---> (accept: Accept) =>
       Accepted(r.requestId, clock.now(), accept.timeSlot, message = None)
-    case (_: Accepted) ----> (cancel: Cancel) =>
+    case (_: Accepted) ---> (cancel: Cancel) =>
       Cancelled(state.requestId, clock.now(), byUser = Some(cancel.user), reason = cancel.reason)
-    case (s: Accepted) ----> (_: ActivityReady) =>
+    case (s: Accepted) ---> (_: ActivityReady) =>
       ActivityValidation(s.requestId, clock.now(), None, None)
-    case (av: ActivityValidation) ----> (validate: RequesterValidate) =>
+    case (av: ActivityValidation) ---> (validate: RequesterValidate) =>
       val s = ActivityValidation(state.requestId, clock.now(), requester = Some(validate.user), organizer = av.organizer)
       if(s.isValidated) Done(s.requestId, s.timestamp) else s
-    case (av: ActivityValidation) ----> (validate: OrganizerValidate) =>
+    case (av: ActivityValidation) ---> (validate: OrganizerValidate) =>
       val s = ActivityValidation(state.requestId, clock.now(), requester = av.requester, organizer = Some(validate.user))
       if(s.isValidated) Done(s.requestId, s.timestamp) else s
     // Failure cases
-    case (err: WorkflowError) ----> _ => err
-    case _ ----> unexpectedAction =>
+    case _ ---> unexpectedAction =>
       WorkflowError(state.requestId, clock.now(), s"Unexpected action $unexpectedAction applied to state $state")
   }
 
-  // Syntax
-  private final case class --->(state: ActivityWorkflowState, action: ActivityWorkflowAction)
+  // Syntax --->
+  final case class --->(state: ActivityWorkflowState, action: ActivityWorkflowAction)
+  implicit class WorkflowOps(state: ActivityWorkflowState) {
+    def --->(action: ActivityWorkflowAction) = new --->(state, action)
+  }
 
 }

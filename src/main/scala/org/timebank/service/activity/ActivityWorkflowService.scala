@@ -4,7 +4,7 @@ import org.timebank.core.{ActivityId, TimeSlot, UTCTimestamp, UUID, UserId}
 
 case class ActivityRequestId(id: UUID)
 case class ActivityRequest(id: ActivityRequestId,
-                           requester: UserId,
+                           requester: Requester,
                            activity: ActivityId,
                            timestamp: UTCTimestamp,
                            validUntil: UTCTimestamp,
@@ -14,26 +14,27 @@ case class ActivityRequest(id: ActivityRequestId,
 
 trait ActivityWorkflowService[M[_]] {
 
-  def newRequest(requester: UserId,
+  def newRequest(requester: Requester,
                  activity: ActivityId,
                  timeSlots: List[TimeSlot],
-                 message: Option[String]): M[Either[String, ActivityRequestId]]
+                 message: Option[String]): M[ActivityRequestId]
 
   def rejectRequest(requestId: ActivityRequestId,
-                    organizer: UserId,
-                    reason: Option[String]): M[Either[String, Unit]]
+                    organizer: Owner,
+                    reason: Option[String]): M[Unit]
 
   def acceptRequest(requestId: ActivityRequestId,
-                    organizer: UserId,
-                    reason: Option[String]): M[Either[String, Unit]]
+                    organizer: Owner,
+                    timeSlot: TimeSlot): M[Unit]
 
   def cancelRequest(requestId: ActivityRequestId,
-                    reason: Option[String]): M[Either[String, Unit]]
+                    userId: UserId,
+                    reason: Option[String]): M[Unit]
 
-  def ready(requestId: ActivityRequestId, organizer: UserId): M[Either[String, Unit]]
+  def ready(requestId: ActivityRequestId, organizer: Owner): M[Unit]
 
-  def organizerValidation(requestId: ActivityRequestId, userId: UserId): M[Either[String, Unit]]
+  def organizerValidation(requestId: ActivityRequestId, userId: Owner): M[Unit]
 
-  def requesterValidation(requestId: ActivityRequestId, userId: UserId): M[Either[String, Unit]]
+  def requesterValidation(requestId: ActivityRequestId, userId: Requester): M[Unit]
 
 }

@@ -11,7 +11,7 @@ case class Account(
 
 case class TransactionId(id: UUID)
 case class Transaction(
-  timeBankId: TimeBankId,
+  transactionId: TransactionId,
   payer: AccountId,
   receiver: AccountId,
   amount: HourPayment,

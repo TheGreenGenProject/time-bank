@@ -16,4 +16,6 @@ case class TimeSlot(day: Day, start: Time, end: Time)
 case class Availability(slots: List[TimeSlot])
 
 case class ActivityId(id: UUID)
-case class Activity(id: ActivityId, description: String)
+case class Activity(id: ActivityId,
+                    userId: UserId,
+                    description: String)

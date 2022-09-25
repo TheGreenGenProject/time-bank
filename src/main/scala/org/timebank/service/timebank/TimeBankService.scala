@@ -17,9 +17,14 @@ trait TimeBankService[M[_]] {
 
   def disable(admin: Admin, id: TimeBankId): M[Unit]
 
+  def isEnabled(id: TimeBankId): M[Boolean]
+
+  def checkTimeBank(id: TimeBankId): M[Unit]
+
   def userCount(id: TimeBankId): M[Int]
 
   def areLinked(id1: TimeBankId, id2: TimeBankId): M[Boolean]
+
 
   // Linking 2 time-banks to allow transactions between users from these time banks
 
