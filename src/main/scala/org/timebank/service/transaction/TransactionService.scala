@@ -1,7 +1,6 @@
 package org.timebank.service.transaction
 
 import org.timebank.core._
-import scala.concurrent.duration.Duration
 
 
 case class Payer(accountId: AccountId)
@@ -13,9 +12,9 @@ trait TransactionService[M[_]] {
 
   def account(user: UserId): M[Option[Account]]
 
-  def balance(userId: UserId): M[Option[HourPayment]]
+  def balance(userId: UserId): M[Option[Balance]]
 
-  def balance(account: AccountId): M[Option[HourPayment]]
+  def balance(account: AccountId): M[Balance]
 
   // Performs a transaction between 2 accounts
   def transact(payer: Payer,
@@ -34,8 +33,5 @@ trait TransactionService[M[_]] {
 
   def transactions(id: AccountId,
                    page: Page): M[List[Transaction]]
-
-  // Count the number of transactions in the last period
-  def count(lastPeriod: Duration): M[Int]
 
 }

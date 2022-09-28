@@ -9,9 +9,11 @@ trait TransactionStore[M[_]] {
 
   def byId(accountId: AccountId): M[Option[Account]]
 
-  def transactions(userId: UserId, page: Page): M[List[Transaction]]
+  def transactions(accountId: AccountId, page: Page): M[List[Transaction]]
 
   def accountByUserId(userId: UserId): M[Option[Account]]
+
+  def balance(accountId: AccountId): M[HourPayment]
 
   def register(transaction: Transaction): M[Unit]
 
@@ -19,7 +21,7 @@ trait TransactionStore[M[_]] {
 
   def reserve(transaction: Transaction): M[ReservationId]
 
-  def release(reservationId: ReservationId): M[Unit]
+  def release(reservationId: ReservationId): M[Option[TransactionId]]
 
   def cancel(reservationId: ReservationId): M[Unit]
 
